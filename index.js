@@ -1,14 +1,12 @@
 class CountdownTimer {
+  #time;
+  minTime = 10000;
   constructor(selectorId, targetDate) {
       this.selectorId = selectorId;
       this.targetDate = new Date(targetDate);
     }
 
-  minTime = 10000;
-
-  time;
-  
-  render() {
+  #render() {
     const containrEl = document.querySelector('.timers-container');
     
     const markup = `<div class="timer" id="${this.selectorId}">
@@ -35,32 +33,38 @@ class CountdownTimer {
 
     containrEl.insertAdjacentHTML('beforeend', markup);
   }
+
+  #showTime({ days, hours, mins, secs }) {
+    const h = Math.floor((this.#time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const m = Math.floor((this.#time % (1000 * 60 * 60)) / (1000 * 60));
+    const s = Math.floor((this.#time % (1000 * 60)) / 1000);
+    days.textContent = Math.floor(this.#time / (1000 * 60 * 60 * 24));
+    hours.textContent = h < 10 ? `0${h}` : `${h}`;
+    mins.textContent = m < 10 ? `0${m}` : `${m}`;
+    secs.textContent = s < 10 ? `0${s}` : `${s}`;
+  }
   
   startCdTimer() {
-    this.time = this.targetDate.getTime() - new Date().getTime();
-    if (this.time < this.minTime) {
+    this.#time = this.targetDate.getTime() - new Date().getTime();
+    if (this.#time < this.minTime) {
        console.log('Некорректная целевая дата');
-       return false
+      return false;
     }
 
-    this.render();
-    const timerEl = document.querySelector(`#${this.selectorId}`);
-    const daysEl = document.querySelector(`#${this.selectorId} [data-value="days"]`);
-    const hoursEl = timerEl.querySelector('[data-value="hours"]');
-    const minsEl = timerEl.querySelector('[data-value="mins"]');
-    const secsEl = timerEl.querySelector(`#${this.selectorId} [data-value="secs"]`);
-    daysEl.textContent = Math.floor(this.time / (1000 * 60 * 60 * 24));
-    hoursEl.textContent = Math.floor((this.time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    minsEl.textContent = Math.floor((this.time % (1000 * 60 * 60)) / (1000 * 60));
-    secsEl.textContent = Math.floor((this.time % (1000 * 60)) / 1000);
+    this.#render();
+    const refs = {
+      days: document.querySelector(`#${this.selectorId} [data-value="days"]`),
+      hours: document.querySelector(`#${this.selectorId} [data-value="hours"]`),
+      mins: document.querySelector(`#${this.selectorId} [data-value="mins"]`),
+      secs: document.querySelector(`#${this.selectorId} [data-value="secs"]`),
+    }
+    
+    this.#showTime(refs);
     
     
     const timerId = setInterval(() => {
-      this.time -= 1000;
-      daysEl.textContent = Math.floor(this.time / (1000 * 60 * 60 * 24));
-      hoursEl.textContent = Math.floor((this.time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      minsEl.textContent = Math.floor((this.time % (1000 * 60 * 60)) / (1000 * 60));
-      secsEl.textContent = Math.floor((this.time % (1000 * 60)) / 1000);
+      this.#time -= 1000;
+      this.#showTime(refs);
     }, 1000);
   }
 }
