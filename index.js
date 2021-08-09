@@ -64,6 +64,11 @@ class CountdownTimer {
     
     const timerId = setInterval(() => {
       this.#time -= 1000;
+      if (this.#time < 1000) {
+        console.log('Достигнута целевая дата');
+        clearInterval(timerId);
+       return true;
+      }
       this.#showTime(refs);
     }, 1000);
   }
