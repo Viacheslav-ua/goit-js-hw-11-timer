@@ -1,12 +1,12 @@
 class CountdownTimer {
-  #time;
+  _time;
   minTime = 10000;
   constructor(selectorId, targetDate) {
       this.selectorId = selectorId;
       this.targetDate = new Date(targetDate);
     }
 
-  #render() {
+  _render() {
     const containrEl = document.querySelector('.timers-container');
     
     const markup = `<div class="timer" id="${this.selectorId}">
@@ -34,24 +34,29 @@ class CountdownTimer {
     containrEl.insertAdjacentHTML('beforeend', markup);
   }
 
-  #showTime({ days, hours, mins, secs }) {
-    const h = Math.floor((this.#time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const m = Math.floor((this.#time % (1000 * 60 * 60)) / (1000 * 60));
-    const s = Math.floor((this.#time % (1000 * 60)) / 1000);
-    days.textContent = Math.floor(this.#time / (1000 * 60 * 60 * 24));
+  _showTime({ days, hours, mins, secs }) {
+    const h = Math.floor((this._time % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const m = Math.floor((this._time % (1000 * 60 * 60)) / (1000 * 60));
+    const s = Math.floor((this._time % (1000 * 60)) / 1000);
+    days.textContent = Math.floor(this._time / (1000 * 60 * 60 * 24));
     hours.textContent = h < 10 ? `0${h}` : `${h}`;
     mins.textContent = m < 10 ? `0${m}` : `${m}`;
     secs.textContent = s < 10 ? `0${s}` : `${s}`;
   }
+
+  _calcTimeLeft() {
+    this._time = this.targetDate - Date.now();
+  }
   
   startCdTimer() {
-    this.#time = this.targetDate.getTime() - new Date().getTime();
-    if (this.#time < this.minTime) {
+    this._calcTimeLeft();
+    // console.log(this._time)
+    if (this._time < this.minTime) {
        console.log('Некорректная целевая дата');
       return false;
     }
 
-    this.#render();
+    this._render();
     const refs = {
       days: document.querySelector(`#${this.selectorId} [data-value="days"]`),
       hours: document.querySelector(`#${this.selectorId} [data-value="hours"]`),
@@ -59,17 +64,17 @@ class CountdownTimer {
       secs: document.querySelector(`#${this.selectorId} [data-value="secs"]`),
     }
     
-    this.#showTime(refs);
+    this._showTime(refs);
     
     
     const timerId = setInterval(() => {
-      this.#time -= 1000;
-      if (this.#time < 1000) {
+      this._calcTimeLeft();
+      if (this._time < 1000) {
         console.log('Достигнута целевая дата');
         clearInterval(timerId);
        return true;
       }
-      this.#showTime(refs);
+      this._showTime(refs);
     }, 1000);
   }
 }
